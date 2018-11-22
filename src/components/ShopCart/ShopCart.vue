@@ -14,7 +14,7 @@
         </div>
         <div class="content-right">
           <div class="pay not-enough">
-            还差￥10元起送
+            还差￥10元起送zzz
           </div>
         </div>
       </div>
