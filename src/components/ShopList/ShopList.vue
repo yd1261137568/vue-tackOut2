@@ -44,6 +44,12 @@
           </a>
         </li>
       </ul>
+      <ul>
+        <li><img src="./images/shop_back.svg" alt=""></li>
+        <li><img src="./images/shop_back.svg" alt=""></li>
+        <li><img src="./images/shop_back.svg" alt=""></li>
+        <li><img src="./images/shop_back.svg" alt=""></li>
+      </ul>
     </div>
   </div>
 </template>
