@@ -10,10 +10,11 @@ import {
   RECEIVE_RATINGS,
   RECEIVE_INFO,
   ADD_FOOD_COUNT,
-  REDECE_FOOD_COUNT
+  REDECE_FOOD_COUNT,
+  CLEAR_CART
 } from './mutation-types';
 export default {
-  [RECEIVE_ADDRESS] (state,{address}) { //adress 是我最终要更新的数据(自己定义的名字)
+  [RECEIVE_ADDRESS] (state,{address}) { //adress 是我最终要更新的数据(state中定义好的名字)
     state.address = address;
   },
   [RECEIVE_CATEGORYS] (state,{categorys}) {
@@ -55,6 +56,12 @@ export default {
       }
     }
   },
+  [CLEAR_CART] (state) {
+    //清除food的count为0
+    state.cartFoods.forEach(food => food.count = 0);
+    //购物车为空
+    state.cartFoods = []
+  }
 
 
 }

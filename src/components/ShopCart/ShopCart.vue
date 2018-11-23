@@ -18,40 +18,48 @@
           </div>
         </div>
       </div>
-      <div class="shopcart-list" v-if="isShow">
-        <div class="list-header">
-          <h1 class="title">购物车</h1>
-          <span class="empty" @click="remoteFoods">清空</span>
+
+      <transition name="move">
+        <div class="shopcart-list" v-if="listShow">
+          <div class="list-header">
+            <h1 class="title">购物车</h1>
+            <span class="empty" @click="clearCart">清空</span>
+          </div>
+          <div class="list-content">
+            <ul>
+              <li class="food" v-for="(food,index) in cartFoods" :key="index">
+                <span class="name">{{food.name}}</span>
+                <div class="price"><span>￥{{food.price}}</span></div>
+                <div class="cartcontrol-wrapper">
+                  <CartControl :food="food"/>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="list-content">
-          <ul>
-            <li class="food" v-for="(food,index) in cartFoods" :key="index">
-              <span class="name">{{food.name}}</span>
-              <div class="price"><span>￥{{food.price}}</span></div>
-              <div class="cartcontrol-wrapper">
-                <CartControl :food="food"/>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
+      </transition>
+
     </div>
-    <div class="list-mask" v-if="isShow" @clcik="toggleShow"></div>
+    <transition name="fade">
+      <div class="list-mask" v-if="listShow" @click="toggleShow"></div>
+    </transition>
+
   </div>
 </template>
 <script>
-  import {mapState,mapGetters} from 'vuex';
+  import {mapState, mapGetters} from 'vuex';
   import CartControl from '../CartControl/CartControl.vue';
-  import {MessageBox} from 'mint-ui'
+  import {MessageBox} from 'mint-ui';
+  import BScroll from 'better-scroll';
   export default {
     data () {
       return {
-        isShow:false
+        isShow: false
       }
     },
-    computed:{
-      ...mapState(['cartFoods','info']),
-      ...mapGetters(['totalCount','totalPrice']),
+    computed: {
+      ...mapState(['cartFoods', 'info']),
+      ...mapGetters(['totalCount', 'totalPrice']),
       payClass () {
         const {totalPrice} = this;
         const {minPrice} = this.info;
@@ -60,24 +68,57 @@
       payText () {
         const {totalPrice} = this;
         const {minPrice} = this.info;
-        if(totalPrice < minPrice) {
+        if (totalPrice < minPrice) {
           return `还差￥${minPrice - totalPrice}起送`
-        }else if(totalPrice === 0){
+        } else if (totalPrice === 0) {
           return `￥${minPrice}起送`
-        }else{
+        } else {
           return '去结算'
         }
-      }
-    },
-    methods:{
-      toggleShow () {
-        this.isShow = !this.isShow
       },
-      remoteFoods () {
-        MessageBox.confirm('确定要清空购物车吗')
+
+      listShow () {
+        if (this.totalCount === 0) {
+          this.isShow = false;
+          return false
+        }
+
+        if (this.isShow) {
+          this.$nextTick(() => {
+            if(!this.scroll) {
+              this.scroll = new BScroll('.list-content', {
+                click: true
+              });
+            }else {
+              //通知scroll对象刷新:统计高度,形成滑动
+              this.scroll.refresh()
+            }
+
+          })
+
+        }
+
+        return this.isShow
       }
     },
-    components:{
+    methods: {
+      toggleShow () {
+        if (this.totalCount >= 0) {
+          this.isShow = !this.isShow
+        }
+
+      },
+      //清除购物车
+      clearCart () {
+        MessageBox.confirm('确定要清空购物车吗?')
+          .then(action => {
+            this.$store.dispatch('clearCart')
+          });
+      },
+
+
+    },
+    components: {
       CartControl
     }
   }
@@ -177,6 +218,11 @@
       z-index: -1
       width: 100%
       transform translateY(-100%)
+      &.move-enter-active, &.move-leave-active
+        transition transform .5s
+      &.move-enter, &.move-leave-to
+        transform translateY(0)
+
       .list-header
         height: 40px
         line-height: 40px
